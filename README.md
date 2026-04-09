@@ -34,6 +34,42 @@ npm run preview
 
 ---
 
+## บันทึกข้อมูลลง SQLite (.db)
+
+โปรเจกต์นี้เพิ่ม endpoint สำหรับบันทึกข้อมูลลงฐานข้อมูล SQLite แล้ว:
+
+- API: `POST /api/signature.php`
+- Database file: `storage/songkran_signatures.db`
+- ตาราง: `signature_records`
+- ฟิลด์ที่บันทึก:
+	- `sender_name_or_org`
+	- `executive_name`
+	- `blessing_text`
+
+ตัวอย่าง JSON payload:
+
+```json
+{
+	"sender_name_or_org": "กองส่งเสริมการมีส่วนร่วมของประชาชน",
+	"executive_name": "นายสุริยพล นุชอนงค์",
+	"blessing_text": "ขอให้มีสุขภาพแข็งแรง ร่มเย็นเป็นสุข ตลอดปีใหม่ไทย"
+}
+```
+
+### หมายเหตุสำหรับ Apache Ubuntu
+
+ให้แน่ใจว่า web server เขียนไฟล์ในโฟลเดอร์ `storage/` ได้ เช่น:
+
+```bash
+sudo chown -R www-data:www-data /var/www/songkran-rid/storage
+sudo chmod -R 775 /var/www/songkran-rid/storage
+```
+
+ถ้ารันผ่าน Vite dev server (`npm run dev`) ฝั่ง frontend จะข้ามการบันทึก DB อัตโนมัติเมื่อหา endpoint ไม่เจอ
+เพื่อไม่ให้ขัดกับการทดสอบ UI.
+
+---
+
 ## โครงสร้างโปรเจกต์
 ```
 songkran-rid/

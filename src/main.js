@@ -8,6 +8,46 @@ const state = {
   selectedBlessing: null,  // Single blessing selection
 }
 
+const SIGNATURE_API_URL = import.meta.env.VITE_SIGNATURE_API_URL || '/api/signature.php'
+
+function normalizeName (value) {
+  return String(value || '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\u00A0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+async function saveSignatureRecord ({ senderNameOrOrg, executiveName, blessingText }) {
+  const payload = {
+    sender_name_or_org: senderNameOrOrg,
+    executive_name: normalizeName(executiveName),
+    blessing_text: String(blessingText || '').trim(),
+  }
+
+  try {
+    const res = await fetch(SIGNATURE_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!res.ok) {
+      const body = await res.text()
+      throw new Error('HTTP ' + res.status + ': ' + body)
+    }
+  } catch (err) {
+    const isDevServer = location.port === '5173'
+    if (isDevServer) {
+      console.warn('Skipping DB save in Vite dev mode:', err)
+      return
+    }
+    throw err
+  }
+}
+
 // ── manager card builder ────────────────────────────────────
 function buildMgrCard (m) {
   return `
@@ -291,6 +331,12 @@ async function downloadCard () {
   const overlay = document.getElementById('loadingOverlay')
   overlay.classList.add('show')
   try {
+    await saveSignatureRecord({
+      senderNameOrOrg: fromText,
+      executiveName: mgrs[0].name,
+      blessingText: blessings[0],
+    })
+
     const cardEl = buildGreetingCard(mgrs, blessings, fromText)
     await document.fonts.ready
     await new Promise(r => setTimeout(r, 250))
