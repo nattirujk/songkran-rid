@@ -1,4 +1,3 @@
-
 /**
  * Build or update the hidden #greetingCard element used for html2canvas export.
  * @param {object[]} managers   - full manager objects from MANAGERS
@@ -10,8 +9,10 @@ export function buildGreetingCard (managers, blessingTexts, fromText) {
   if (!el) {
     el = document.createElement('div')
     el.id = 'greetingCard'
+    el.className = 'gc-card-root'
     document.body.appendChild(el)
   }
+  el.classList.add('gc-card-root')
 
   const toLine = managers.length
     ? 'เรียน ' + managers.map(m => m.name + ' ' + m.position).join('<br>')
@@ -19,30 +20,43 @@ export function buildGreetingCard (managers, blessingTexts, fromText) {
 
   const blessingLine = blessingTexts.join('\n')
 
-  // Build manager photo thumbnails for the card
+  // Build manager blocks for the card (photo left, text right)
   const mgrsHtml = managers.map(m => `
-    <div style="text-align:center;margin:0 10px;">
+    <div style="
+      display:flex;align-items:center;gap:16px;
+      background:rgba(11, 58, 103, .35);
+      border:1.5px solid rgba(212,175,55,.45);
+      border-radius:16px;
+      padding:12px 14px;
+      min-width:520px;
+      max-width:720px;
+    ">
       <div style="
-        width:80px;height:80px;border-radius:50%;
-        background:linear-gradient(135deg,#0077b6,#00897b);
-        border:3px solid #d4af37;
+        width:140px;height:170px;border-radius:16px;
+        background:linear-gradient(135deg,#0a4d85,#1382bf);
+        border:3px solid #9f7420;
         display:flex;align-items:center;justify-content:center;
-        margin:0 auto 6px;overflow:hidden;position:relative;
+        overflow:hidden;position:relative;flex-shrink:0;
       ">
         <img
           src="${m.image}" alt="${m.name}"
-          style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+          style="width:100%;height:100%;object-fit:cover;border-radius:16px;"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
         />
         <div style="
           display:none;width:100%;height:100%;
           align-items:center;justify-content:center;
-          font-size:16px;font-weight:800;color:#fff;
-          border-radius:50%;
+          font-size:22px;font-weight:800;color:#fff;
+          border-radius:16px;
         ">${m.initials}</div>
       </div>
-      <div style="font-size:11px;color:#b2ebf2;font-weight:600;">${m.rank}</div>
-      <div style="font-size:13px;color:#fff;font-weight:700;line-height:1.35;">${m.name}</div>
+      <div style="
+        text-align:left;
+        color:#f6dd95;
+        font-size:22px;
+        font-weight:700;
+        line-height:1.5;
+      ">"ขออวยพร" ${m.rank} ${m.name}<br>${blessingLine.replace(/\n/g, '<br>')}</div>
     </div>
   `).join('')
 
@@ -57,7 +71,7 @@ export function buildGreetingCard (managers, blessingTexts, fromText) {
     <div class="gc-content">
       <div class="gc-logo-row">
         <div class="gc-logo-icon">
-          <img src="/logo-rid2.png" alt="RID" style="width:52px;height:52px;object-fit:contain;" />
+          <img src="/logo-rid2.png" alt="RID" class="gc-logo-image" />
         </div>
         <div>
           <div class="gc-org-name">กรมชลประทาน</div>
@@ -65,24 +79,15 @@ export function buildGreetingCard (managers, blessingTexts, fromText) {
         </div>
         <div style="margin-left:auto;font-size:2rem;letter-spacing:.5rem;">🌸🌼🌺</div>
       </div>
-
-      <div class="gc-title">สืบสานสงกรานต์</div>
-      <div class="gc-year">🌸 วันสงกรานต์ ๒๕๖๘  •  Songkran 2025 🌸</div>
-      <div class="gc-flowers">🌸🌼🌺🌼🌸</div>
-
-      <hr class="gc-divider" />
-
+      <div class="gc-year">🌸 สืบสานวันสงกรานต์ ๒๕๖๙  •  Songkran 2026 🌸</div>
+    
       <!-- Manager thumbnails -->
       <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
         ${mgrsHtml}
       </div>
 
-      <div class="gc-blessing">${blessingLine.replace(/\n/g, '<br>')}</div>
-
       <div class="gc-from">
-        ${fromText ? 'จาก: ' + fromText + '<br>' : ''}
-        ด้วยความระลึกถึงและนับถืออย่างสูง<br>
-        คณะเจ้าหน้าที่กรมชลประทาน 🌺
+        ${fromText ? 'จาก: ' + fromText + '🌺' : ''}
       </div>
     </div>
   `

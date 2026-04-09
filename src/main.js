@@ -4,8 +4,8 @@ import { MANAGERS, BLESSINGS } from './data.js'
 import { buildGreetingCard } from './cardRenderer.js'
 
 const state = {
-  selectedMgrs: new Set(),
-  selectedBlessings: new Set(),
+  selectedMgr: null,  // Single manager selection
+  selectedBlessing: null,  // Single blessing selection
 }
 
 // ── manager card builder ────────────────────────────────────
@@ -59,7 +59,7 @@ document.querySelector('#app').innerHTML = `
           ร่วมส่งความสุขและคำอวยพร เนื่องในเทศกาลปีใหม่ไทย<br>
           แด่คณะผู้บริหารกรมชลประทาน
         </div>
-        <div class="year-badge">🌺 วันสงกรานต์ ๒๕๖๘</div>
+        <div class="year-badge">🌺 วันสงกรานต์ ๒๕๖๙</div>
       </div>
 
       <!-- Two-column desktop layout -->
@@ -67,16 +67,16 @@ document.querySelector('#app').innerHTML = `
 
         <!-- LEFT: Manager selection -->
         <div class="panel-left">
-          <div class="section-label">เลือกผู้บริหารเพื่อร่วมลงนามอวยพร</div>
+          <div class="section-label">เลือกผู้บริหารทีละคน</div>
           <div class="mgr-grid" id="mgrGrid">
             ${MANAGERS.map(m => buildMgrCard(m)).join('')}
           </div>
-          <div class="sel-count" id="selCount">กรุณาเลือกผู้บริหารอย่างน้อย 1 ท่าน</div>
+          <div class="sel-count" id="selCount">กรุณาเลือกผู้บริหาร</div>
         </div>
 
         <!-- RIGHT: Blessing + form + actions -->
         <div class="panel-right">
-          <div class="section-label">① เลือกคำอวยพร (เลือกได้หลายข้อ)</div>
+          <div class="section-label">① เลือกคำอวยพร (เลือก 1 ข้อ)</div>
           <div class="blessing-grid" id="blessingGrid">
             ${BLESSINGS.map(b => `
               <button class="blessing-btn" data-id="${b.id}" data-text="${b.text}">
@@ -88,19 +88,8 @@ document.querySelector('#app').innerHTML = `
           <div class="section-label" style="margin-top:.9rem">② ชื่อผู้ส่ง / หน่วยงาน (ไม่บังคับ)</div>
           <input class="from-input" id="fromInput" type="text" placeholder="เช่น กองส่งเสริมการมีส่วนร่วมของประชาชน" />
 
-          <div class="preview-box" id="previewBox">
-            <div class="preview-header">✨ ตัวอย่างคำอวยพร ✨</div>
-            <div class="preview-to" id="previewTo"></div>
-            <div class="preview-text" id="previewText"></div>
-            <div class="preview-from" id="previewFrom"></div>
-          </div>
-
-          <div class="btn-row" id="mainBtns">
-            <button class="btn btn-preview" id="btnPreview">👁 ดูตัวอย่าง</button>
-          </div>
-          <div class="btn-row" id="actionBtns" style="display:none">
-            <button class="btn btn-send"     id="btnSend">📨 ยืนยันส่ง</button>
-            <button class="btn btn-download" id="btnDownload">⬇ บันทึกการ์ด PNG</button>
+          <div class="btn-row" id="mainBtns" style="margin-top:1.2rem">
+            <button class="btn btn-download" id="btnSave">⬇ บันทึกการ์ด</button>
           </div>
 
           <div class="success-box" id="successBox">
@@ -108,7 +97,6 @@ document.querySelector('#app').innerHTML = `
             <div class="success-title">ส่งคำอวยพรสำเร็จ!</div>
             <div class="success-sub" id="successDetail"></div>
             <div class="btn-row" style="margin-top:1rem">
-              <button class="btn btn-download" id="btnDownload2">⬇ บันทึกการ์ด PNG</button>
               <button class="btn btn-reset"    id="btnReset">🔄 อวยพรใหม่</button>
             </div>
           </div>
@@ -131,6 +119,18 @@ document.querySelector('#app').innerHTML = `
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
     <div class="loading-text">กำลังสร้างการ์ดอวยพร...</div>
+  </div>
+
+  <!-- Card Preview Modal -->
+  <div class="modal-overlay" id="cardModal" style="display:none">
+    <div class="modal-content">
+      <button class="modal-close" id="btnCloseModal">&times;</button>
+      <div class="modal-header">✨ การ์ดอวยพร ✨</div>
+      <div class="modal-card-preview" id="modalCardPreview"></div>
+      <div class="modal-actions">
+        <button class="btn btn-download" id="btnDownloadFromModal">⬇ บันทึกการ์ด PNG</button>
+      </div>
+    </div>
   </div>
 `
 
@@ -161,27 +161,38 @@ function stopMusic () {
 // Always reset music to stopped state on reload/new page show.
 window.addEventListener('load', stopMusic)
 window.addEventListener('pageshow', stopMusic)
+window.addEventListener('pagehide', stopMusic)
+window.addEventListener('beforeunload', stopMusic)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopMusic()
+})
 
 btnMusic.addEventListener('click', () => {
   musicPlaying ? stopMusic() : startMusic()
 })
-
-// Autoplay on first interaction
-document.addEventListener('click', () => {
-  if (!musicPlaying) startMusic()
-}, { once: true })
 
 // ── manager selection ────────────────────────────────────────
 document.getElementById('mgrGrid').addEventListener('click', e => {
   const card = e.target.closest('.mgr-card')
   if (!card) return
   const { id } = card.dataset
-  if (state.selectedMgrs.has(id)) {
-    state.selectedMgrs.delete(id)
+  // Toggle: click again to deselect
+  if (state.selectedMgr === id) {
+    state.selectedMgr = null
     card.classList.remove('selected')
+    document.querySelectorAll('.mgr-card').forEach(c => {
+      c.classList.remove('blurred')
+    })
   } else {
-    state.selectedMgrs.add(id)
+    document.querySelectorAll('.mgr-card').forEach(c => {
+      c.classList.remove('selected', 'blurred')
+    })
+    state.selectedMgr = id
     card.classList.add('selected')
+    // Add blur to all other cards
+    document.querySelectorAll('.mgr-card').forEach(c => {
+      if (c.dataset.id !== id) c.classList.add('blurred')
+    })
   }
   updateSelCount()
   hidePreview()
@@ -192,69 +203,81 @@ document.getElementById('blessingGrid').addEventListener('click', e => {
   const btn = e.target.closest('.blessing-btn')
   if (!btn) return
   const { id } = btn.dataset
-  if (state.selectedBlessings.has(id)) {
-    state.selectedBlessings.delete(id)
+  // Toggle: click again to deselect
+  if (state.selectedBlessing === id) {
+    state.selectedBlessing = null
     btn.classList.remove('active')
   } else {
-    state.selectedBlessings.add(id)
+    document.querySelectorAll('.blessing-btn').forEach(b => {
+      b.classList.remove('active')
+    })
+    state.selectedBlessing = id
     btn.classList.add('active')
   }
   hidePreview()
 })
 
-document.getElementById('btnPreview').addEventListener('click', showPreview)
-document.getElementById('btnSend').addEventListener('click', confirmSend)
-document.getElementById('btnDownload').addEventListener('click', downloadCard)
-document.getElementById('btnDownload2').addEventListener('click', downloadCard)
+document.getElementById('btnSave').addEventListener('click', showCardModal)
+document.getElementById('btnCloseModal').addEventListener('click', closeCardModal)
+document.getElementById('btnDownloadFromModal').addEventListener('click', downloadCard)
 document.getElementById('btnReset').addEventListener('click', resetAll)
 
 // ── helpers ──────────────────────────────────────────────────
 function getSelectedManagers () {
-  return MANAGERS.filter(m => state.selectedMgrs.has(m.id))
+  return state.selectedMgr ? MANAGERS.filter(m => m.id === state.selectedMgr) : []
 }
 
 function getSelectedBlessingTexts () {
-  return BLESSINGS
-    .filter(b => state.selectedBlessings.has(b.id))
-    .map(b => b.text)
+  return state.selectedBlessing ? BLESSINGS.filter(b => b.id === state.selectedBlessing).map(b => b.text) : []
 }
 
 function updateSelCount () {
   const names = getSelectedManagers().map(m => m.name)
   const el = document.getElementById('selCount')
   el.textContent = names.length
-    ? '✅ เลือกแล้ว ' + names.length + ' ท่าน: ' + names.join(', ')
-    : 'กรุณาเลือกผู้บริหารอย่างน้อย 1 ท่าน'
+    ? '✅ เลือกแล้ว: ' + names[0]
+    : 'กรุณาเลือกผู้บริหาร'
 }
 
 function hidePreview () {
-  document.getElementById('previewBox').classList.remove('show')
-  document.getElementById('actionBtns').style.display = 'none'
-  document.getElementById('mainBtns').style.display = 'flex'
+  closeCardModal()
 }
 
-function showPreview () {
+function showCardModal () {
   const mgrs = getSelectedManagers()
   const blessings = getSelectedBlessingTexts()
   if (mgrs.length === 0) { alert('กรุณาเลือกผู้บริหารอย่างน้อย 1 ท่าน'); return }
-  if (blessings.length === 0) { alert('กรุณาเลือกคำอวยพรหรือพิมพ์คำอวยพรของคุณ'); return }
+  if (blessings.length === 0) { alert('กรุณาเลือกคำอวยพร'); return }
+  const mgr = mgrs[0]
   const fromText = document.getElementById('fromInput').value.trim()
-  document.getElementById('previewTo').textContent =
-    'เรียน ' + mgrs.map(m => m.name).join('  |  ')
-  document.getElementById('previewText').textContent = blessings.join('\n')
-  document.getElementById('previewFrom').textContent = fromText ? 'จาก: ' + fromText : ''
-  document.getElementById('previewBox').classList.add('show')
-  document.getElementById('mainBtns').style.display = 'none'
-  document.getElementById('actionBtns').style.display = 'flex'
+  const previewWrap = document.getElementById('modalCardPreview')
+  previewWrap.innerHTML = `
+    <div class="modal-greet-card">
+      <div class="modal-greet-header">คำอวยพรที่ท่านเลือก</div>
+      <div class="modal-greet-body">
+        <div class="modal-greet-photo-wrap">
+          <img
+            class="modal-greet-photo"
+            src="${mgr.image}"
+            alt="${mgr.name}"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+          />
+          <div class="modal-greet-photo-fallback">${mgr.initials}</div>
+        </div>
+        <div class="modal-greet-text">
+          <div class="modal-greet-to">ขออวยพร ${mgr.rank} ${mgr.name}</div>
+          <div class="modal-greet-message">${blessings.join('<br>')}</div>
+          <div class="modal-greet-from">${fromText ? 'จาก: ' + fromText : ''}</div>
+        </div>
+      </div>
+    </div>
+  `
+  document.getElementById('cardModal').style.display = 'flex'
 }
 
-function confirmSend () {
-  document.getElementById('previewBox').classList.remove('show')
-  document.getElementById('actionBtns').style.display = 'none'
-  document.getElementById('successBox').classList.add('show')
-  const mgrs = getSelectedManagers()
-  document.getElementById('successDetail').textContent =
-    'ส่งถึง: ' + mgrs.map(m => m.name).join(', ') + ' — สุขสันต์วันสงกรานต์ปีใหม่ไทย 🌸'
+function closeCardModal () {
+  document.getElementById('cardModal').style.display = 'none'
+  document.getElementById('modalCardPreview').innerHTML = ''
 }
 
 async function downloadCard () {
@@ -275,14 +298,18 @@ async function downloadCard () {
       scale: 2,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: '#0a3d5c',
+      backgroundColor: null,
       logging: false,
     })
+
     const link = document.createElement('a')
     const names = mgrs.map(m => m.name.replace(/\s/g, '_')).join('-')
     link.download = 'songkran_RID_' + names + '.png'
     link.href = canvas.toDataURL('image/png')
     link.click()
+    // Close modal and reset form for next greeting
+    closeCardModal()
+    resetAll()
   } catch (err) {
     console.error(err)
     alert('เกิดข้อผิดพลาดในการสร้างการ์ด กรุณาลองใหม่')
@@ -292,14 +319,13 @@ async function downloadCard () {
 }
 
 function resetAll () {
-  state.selectedMgrs.clear()
-  state.selectedBlessings.clear()
-  document.querySelectorAll('.mgr-card').forEach(c => c.classList.remove('selected'))
+  state.selectedMgr = null
+  state.selectedBlessing = null
+  document.querySelectorAll('.mgr-card').forEach(c => c.classList.remove('selected', 'blurred'))
   document.querySelectorAll('.blessing-btn').forEach(b => b.classList.remove('active'))
   document.getElementById('fromInput').value = ''
-  document.getElementById('previewBox').classList.remove('show')
+  closeCardModal()
   document.getElementById('successBox').classList.remove('show')
-  document.getElementById('actionBtns').style.display = 'none'
   document.getElementById('mainBtns').style.display = 'flex'
   updateSelCount()
 }
