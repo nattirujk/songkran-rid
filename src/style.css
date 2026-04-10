@@ -572,7 +572,7 @@ body::before {
 .modal-greet-body {
   display: flex;
   gap: 1rem;
-  align-items: flex-start;
+  align-items: stretch;
 }
 .modal-greet-photo-wrap {
   width: 180px;
@@ -607,6 +607,7 @@ body::before {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: .25rem;
   background: rgba(11, 58, 103, .35);
   border: 1px solid rgba(212,175,55,.45);
@@ -614,27 +615,33 @@ body::before {
   padding: .9rem 1rem;
   color: #f6dd95;
   text-align: center;
+  margin: 0;
 }
 .modal-greet-to {
+  width: 100%;
   font-size: 1.05rem;
   font-weight: 800;
   color: #f6dd95;
-  margin-bottom: 0;
+  margin: 0;
+  text-align: center;
 }
 .modal-greet-message {
+  width: 100%;
   font-size: .98rem;
   line-height: 1.4;
-  margin-bottom: 0;
+  margin: 0;
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: break-word;
+  text-align: center;
 }
 .modal-greet-from {
+  width: 100%;
   text-align: center;
   font-size: .88rem;
   color: #f5d88b;
   font-weight: 700;
-  margin-top: 0;
+  margin: 0;
 }
 
 /* ═══════════════════════════════════════════════
