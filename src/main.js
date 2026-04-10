@@ -107,7 +107,7 @@ document.querySelector('#app').innerHTML = `
 
         <!-- LEFT: Manager selection -->
         <div class="panel-left">
-          <div class="section-label">เลือกผู้บริหารทีละคน</div>
+          <div class="section-label">เลือกผู้บริหารทีละท่าน</div>
           <div class="mgr-grid" id="mgrGrid">
             ${MANAGERS.map(m => buildMgrCard(m)).join('')}
           </div>
