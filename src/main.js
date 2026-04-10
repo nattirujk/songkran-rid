@@ -179,14 +179,44 @@ const audio = document.getElementById('bgMusic')
 const btnMusic = document.getElementById('btnMusic')
 const musicLabel = document.getElementById('musicLabel')
 let musicPlaying = false
+let pendingAutoPlay = false
+
+function tryAutoPlayFromInteraction () {
+  if (!pendingAutoPlay) return
+  pendingAutoPlay = false
+  startMusic()
+  removeAutoPlayInteractionListeners()
+}
+
+function addAutoPlayInteractionListeners () {
+  document.addEventListener('click', tryAutoPlayFromInteraction)
+  document.addEventListener('touchstart', tryAutoPlayFromInteraction)
+  document.addEventListener('keydown', tryAutoPlayFromInteraction)
+}
+
+function removeAutoPlayInteractionListeners () {
+  document.removeEventListener('click', tryAutoPlayFromInteraction)
+  document.removeEventListener('touchstart', tryAutoPlayFromInteraction)
+  document.removeEventListener('keydown', tryAutoPlayFromInteraction)
+}
+
+function armAutoPlayOnFirstInteraction () {
+  if (pendingAutoPlay) return
+  pendingAutoPlay = true
+  addAutoPlayInteractionListeners()
+}
 
 function startMusic () {
   audio.play().then(() => {
+    pendingAutoPlay = false
+    removeAutoPlayInteractionListeners()
     musicPlaying = true
     btnMusic.textContent = '⏸'
     btnMusic.classList.add('playing')
     musicLabel.textContent = '🎶 กำลังเล่นเพลงสงกรานต์...'
-  }).catch(() => { })
+  }).catch(() => {
+    armAutoPlayOnFirstInteraction()
+  })
 }
 
 function stopMusic () {
@@ -199,8 +229,8 @@ function stopMusic () {
 }
 
 // Always reset music to stopped state on reload/new page show.
-window.addEventListener('load', stopMusic)
-window.addEventListener('pageshow', stopMusic)
+window.addEventListener('load', startMusic)
+window.addEventListener('pageshow', startMusic)
 window.addEventListener('pagehide', stopMusic)
 window.addEventListener('beforeunload', stopMusic)
 document.addEventListener('visibilitychange', () => {
@@ -236,6 +266,7 @@ document.getElementById('mgrGrid').addEventListener('click', e => {
   }
   updateSelCount()
   hidePreview()
+  if (state.selectedMgr) focusBlessingStep()
 })
 
 // ── blessing selection ───────────────────────────────────────
@@ -281,6 +312,18 @@ function updateSelCount () {
 
 function hidePreview () {
   closeCardModal()
+}
+
+function focusBlessingStep () {
+  const blessingGrid = document.getElementById('blessingGrid')
+  if (!blessingGrid) return
+
+  blessingGrid.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+  const firstBlessingBtn = blessingGrid.querySelector('.blessing-btn')
+  if (firstBlessingBtn) {
+    requestAnimationFrame(() => firstBlessingBtn.focus())
+  }
 }
 
 function showCardModal () {
