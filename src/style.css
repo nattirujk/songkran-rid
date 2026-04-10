@@ -156,18 +156,10 @@ body::before {
   border-radius: 3px;
 }
 
-/* ───── Two-column desktop layout ───── */
+/* ───── Single-column vertical layout ───── */
 .app-layout {
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 2rem;
-  align-items: start;
-}
-
-.panel-left  { min-width: 0; }
-.panel-right {
-  position: sticky;
-  top: 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ───── Manager poster grid ───── */
@@ -211,6 +203,20 @@ body::before {
 
 /* detail panel (hidden for deputy cards) */
 .mgr-detail { display: none; }
+
+/* Deputy cards: 2×2 layout with landscape banner (1567×1045) */
+.mgr-grid > .mgr-card:not(:first-child) {
+  grid-column: span 2;
+}
+.mgr-grid > .mgr-card:not(:first-child) .mgr-poster-wrap {
+  height: auto;
+  aspect-ratio: 1567 / 1045;
+}
+.mgr-grid > .mgr-card:not(:first-child) .mgr-poster-img {
+  object-position: center center;
+}
+/* text is already in the banner image — hide label */
+.mgr-grid > .mgr-card:not(:first-child) .mgr-label { display: none; }
 
 .mgr-detail-rank {
   display: inline-block;
@@ -355,7 +361,7 @@ body::before {
 
 /* ───── Blessing grid ───── */
 .blessing-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
+  display: grid; grid-template-columns: repeat(3, 1fr);
   gap: .55rem; margin-bottom: .85rem;
 }
 .blessing-btn {
@@ -585,11 +591,12 @@ body::before {
 .modal-greet-body {
   display: flex;
   gap: 1rem;
-  align-items: stretch;
+  align-items: flex-start;
 }
 .modal-greet-photo-wrap {
-  width: 145px;
-  min-width: 145px;
+  width: 180px;
+  min-width: 180px;
+  aspect-ratio: 600 / 842;
   border-radius: 14px;
   overflow: hidden;
   background: linear-gradient(135deg, #0a4d85, #1382bf);
@@ -601,7 +608,7 @@ body::before {
 .modal-greet-photo {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 .modal-greet-photo-fallback {
   display: none;
@@ -651,14 +658,14 @@ body::before {
 @media (max-width: 1100px) {
   #app { max-width: 100%; }
 
-  .app-layout {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-  .panel-right { position: static; }
-
   /* Deputies: 4-col stays fine on iPad landscape */
   .mgr-grid { grid-template-columns: repeat(4, 1fr); }
+
+  /* Keep deputy landscape aspect-ratio */
+  .mgr-grid > .mgr-card:not(:first-child) .mgr-poster-wrap {
+    height: auto;
+    aspect-ratio: 1567 / 1045;
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -698,16 +705,29 @@ body::before {
   .mgr-detail-pos  { font-size: 13px; }
   .mgr-detail-greeting { font-size: 13px; }
 
-  /* Deputies: 2×2 */
+  /* Deputies: 2×1 stacked — each spans full 2-col width */
   .mgr-grid { grid-template-columns: repeat(2, 1fr); gap: .65rem; }
   .mgr-poster-wrap { height: 240px; }
+  /* Keep deputy banner aspect-ratio, don't apply fixed height */
+  .mgr-grid > .mgr-card:not(:first-child) .mgr-poster-wrap {
+    height: auto;
+    aspect-ratio: 1567 / 1045;
+  }
 
   /* Blessing grid */
-  .blessing-grid { grid-template-columns: 1fr; }
+  .blessing-grid { grid-template-columns: 1fr 1fr; }
 
   /* Buttons */
   .btn { font-size: 13px; padding: .78rem; }
   .btn-reset { padding: .78rem .85rem; }
+
+  .modal-greet-body {
+    flex-direction: column;
+  }
+  .modal-greet-photo-wrap {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -735,6 +755,11 @@ body::before {
   .mgr-grid > .mgr-card:first-child .mgr-detail { padding: .9rem; gap: .5rem; }
 
   /* Deputy cards */
+  .mgr-grid > .mgr-card:not(:first-child) { grid-column: 1 / -1; }
+  .mgr-grid > .mgr-card:not(:first-child) .mgr-poster-wrap {
+    height: auto;
+    aspect-ratio: 1567 / 1045;
+  }
   .mgr-poster-wrap { height: 180px; }
   .mgr-name-label  { font-size: 11px; }
   .mgr-rank-badge  { font-size: 9px; padding: 1px 6px; }

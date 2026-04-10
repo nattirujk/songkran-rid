@@ -32,15 +32,15 @@ export function buildGreetingCard (managers, blessingTexts, fromText) {
       max-width:720px;
     ">
       <div style="
-        width:140px;height:170px;border-radius:16px;
+        width:180px;height:auto;aspect-ratio:600/842;border-radius:16px;
         background:linear-gradient(135deg,#0a4d85,#1382bf);
         border:3px solid #9f7420;
         display:flex;align-items:center;justify-content:center;
         overflow:hidden;position:relative;flex-shrink:0;
       ">
         <img
-          src="${m.image}" alt="${m.name}"
-          style="width:100%;height:100%;object-fit:cover;border-radius:16px;"
+          src="${m.imageCard || m.image}" alt="${m.name}"
+          style="width:100%;height:100%;object-fit:contain;border-radius:16px;background:#0a4d85;"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
         />
         <div style="
@@ -56,7 +56,9 @@ export function buildGreetingCard (managers, blessingTexts, fromText) {
         font-size:22px;
         font-weight:700;
         line-height:1.5;
-      ">"ขออวยพร" ${m.rank} ${m.name}<br>${blessingLine.replace(/\n/g, '<br>')}</div>
+      ">"ขออวยพร" ${m.rank} ${m.name}<br>${blessingLine.replace(/\n/g, '<br>')}
+      ${fromText ? `<div style="width:100%;text-align:right;color:#f5d88b;font-size:18px;margin-top:8px;">จาก: ${fromText} 🌺</div>` : ''}
+      </div>
     </div>
   `).join('')
 
@@ -86,9 +88,6 @@ export function buildGreetingCard (managers, blessingTexts, fromText) {
         ${mgrsHtml}
       </div>
 
-      <div class="gc-from">
-        ${fromText ? 'จาก: ' + fromText + '🌺' : ''}
-      </div>
     </div>
   `
 

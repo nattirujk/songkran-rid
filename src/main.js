@@ -102,43 +102,40 @@ document.querySelector('#app').innerHTML = `
         <div class="year-badge">🌺 วันสงกรานต์ ๒๕๖๙</div>
       </div>
 
-      <!-- Two-column desktop layout -->
+      <!-- Vertical 4-row layout -->
       <div class="app-layout">
 
-        <!-- LEFT: Manager selection -->
-        <div class="panel-left">
-          <div class="section-label">เลือกผู้บริหารทีละท่าน</div>
-          <div class="mgr-grid" id="mgrGrid">
-            ${MANAGERS.map(m => buildMgrCard(m)).join('')}
-          </div>
-          <div class="sel-count" id="selCount">กรุณาเลือกผู้บริหาร</div>
+        <!-- แถวที่ 1–2: เลือกผู้บริหาร (อธิบดี + รองอธิบดี 4 ท่าน) -->
+        <div class="section-label">เลือกผู้บริหาร</div>
+        <div class="mgr-grid" id="mgrGrid">
+          ${MANAGERS.map(m => buildMgrCard(m)).join('')}
+        </div>
+        <div class="sel-count" id="selCount">กรุณาเลือกผู้บริหาร</div>
+
+        <!-- แถวที่ 3: เลือกคำอวยพร -->
+        <div class="section-label" style="margin-top:1.4rem">① เลือกคำอวยพร (เลือก 1 ข้อ)</div>
+        <div class="blessing-grid" id="blessingGrid">
+          ${BLESSINGS.map(b => `
+            <button class="blessing-btn" data-id="${b.id}" data-text="${b.text}">
+              <span style="font-size:16px;display:block;margin-bottom:4px">${b.emoji}</span>${b.text}
+            </button>
+          `).join('')}
         </div>
 
-        <!-- RIGHT: Blessing + form + actions -->
-        <div class="panel-right">
-          <div class="section-label">① เลือกคำอวยพร (เลือก 1 ข้อ)</div>
-          <div class="blessing-grid" id="blessingGrid">
-            ${BLESSINGS.map(b => `
-              <button class="blessing-btn" data-id="${b.id}" data-text="${b.text}">
-                <span style="font-size:16px;display:block;margin-bottom:4px">${b.emoji}</span>${b.text}
-              </button>
-            `).join('')}
-          </div>
+        <!-- แถวที่ 4: กรอกชื่อผู้ส่ง / หน่วยงาน -->
+        <div class="section-label" style="margin-top:.9rem">② ชื่อผู้ส่ง / หน่วยงาน (ไม่บังคับ)</div>
+        <input class="from-input" id="fromInput" type="text" placeholder="เช่น กองส่งเสริมการมีส่วนร่วมของประชาชน" />
 
-          <div class="section-label" style="margin-top:.9rem">② ชื่อผู้ส่ง / หน่วยงาน (ไม่บังคับ)</div>
-          <input class="from-input" id="fromInput" type="text" placeholder="เช่น กองส่งเสริมการมีส่วนร่วมของประชาชน" />
+        <div class="btn-row" id="mainBtns" style="margin-top:1.2rem">
+          <button class="btn btn-download" id="btnSave">⬇ บันทึกการ์ด</button>
+        </div>
 
-          <div class="btn-row" id="mainBtns" style="margin-top:1.2rem">
-            <button class="btn btn-download" id="btnSave">⬇ บันทึกการ์ด</button>
-          </div>
-
-          <div class="success-box" id="successBox">
-            <div class="success-icon">🎉</div>
-            <div class="success-title">ส่งคำอวยพรสำเร็จ!</div>
-            <div class="success-sub" id="successDetail"></div>
-            <div class="btn-row" style="margin-top:1rem">
-              <button class="btn btn-reset"    id="btnReset">🔄 อวยพรใหม่</button>
-            </div>
+        <div class="success-box" id="successBox">
+          <div class="success-icon">🎉</div>
+          <div class="success-title">ส่งคำอวยพรสำเร็จ!</div>
+          <div class="success-sub" id="successDetail"></div>
+          <div class="btn-row" style="margin-top:1rem">
+            <button class="btn btn-reset" id="btnReset">🔄 อวยพรใหม่</button>
           </div>
         </div>
 
@@ -341,7 +338,7 @@ function showCardModal () {
         <div class="modal-greet-photo-wrap">
           <img
             class="modal-greet-photo"
-            src="${mgr.image}"
+            src="${mgr.imageCard || mgr.image}"
             alt="${mgr.name}"
             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
           />
