@@ -169,39 +169,20 @@ body::before {
   gap: .85rem;
 }
 
-/* Director card: spans all 4 columns */
+/* Row 1 manager: image-only card, centered */
 .mgr-grid > .mgr-card:first-child {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 400px 1fr;
-  grid-template-rows: 1fr auto;
-  gap: 0;
-  text-align: left;
+  grid-column: 2 / span 2;
 }
 .mgr-grid > .mgr-card:first-child .mgr-poster-wrap {
-  grid-column: 1;
-  grid-row: 1 / 3;
-  height: 460px;
+  height: auto;
+  aspect-ratio: 1567 / 1045;
 }
 .mgr-grid > .mgr-card:first-child .mgr-poster-img {
-  height: 460px;
+  object-position: center center;
 }
-.mgr-grid > .mgr-card:first-child .mgr-avatar-fallback {
-  height: 460px;
-}
-/* hide small label, show detail panel instead */
-.mgr-grid > .mgr-card:first-child .mgr-label   { display: none; }
-.mgr-grid > .mgr-card:first-child .mgr-detail  {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  grid-column: 2;
-  grid-row: 1 / 3;
-  padding: 2rem 1.75rem;
-  gap: .85rem;
-}
+.mgr-grid > .mgr-card:first-child .mgr-label { display: none; }
 
-/* detail panel (hidden for deputy cards) */
+/* detail panel hidden (image already includes text) */
 .mgr-detail { display: none; }
 
 /* Deputy cards: 2×2 layout with landscape banner (1567×1045) */
@@ -622,6 +603,7 @@ body::before {
 }
 .modal-greet-text {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -643,6 +625,9 @@ body::before {
   font-size: .98rem;
   line-height: 1.4;
   margin-bottom: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .modal-greet-from {
   text-align: center;
@@ -685,29 +670,14 @@ body::before {
   .music-bar { padding: .35rem .9rem; }
   .music-bar span { font-size: 12px; }
 
-  /* Director: stack image + detail vertically */
-  .mgr-grid > .mgr-card:first-child {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
-  }
-  .mgr-grid > .mgr-card:first-child .mgr-poster-wrap {
-    grid-column: 1; grid-row: 1;
-    height: 300px;
-  }
-  .mgr-grid > .mgr-card:first-child .mgr-poster-img  { height: 300px; }
-  .mgr-grid > .mgr-card:first-child .mgr-avatar-fallback { height: 300px; }
-  .mgr-grid > .mgr-card:first-child .mgr-detail {
-    grid-column: 1; grid-row: 2;
-    padding: 1.1rem 1.1rem;
-    gap: .6rem;
-  }
-  .mgr-detail-name { font-size: 1.5rem; }
-  .mgr-detail-pos  { font-size: 13px; }
-  .mgr-detail-greeting { font-size: 13px; }
-
   /* Deputies: 2×1 stacked — each spans full 2-col width */
   .mgr-grid { grid-template-columns: repeat(2, 1fr); gap: .65rem; }
   .mgr-poster-wrap { height: 240px; }
+  .mgr-grid > .mgr-card:first-child { grid-column: 1 / -1; }
+  .mgr-grid > .mgr-card:first-child .mgr-poster-wrap {
+    height: auto;
+    aspect-ratio: 1567 / 1045;
+  }
   /* Keep deputy banner aspect-ratio, don't apply fixed height */
   .mgr-grid > .mgr-card:not(:first-child) .mgr-poster-wrap {
     height: auto;
@@ -725,8 +695,12 @@ body::before {
     flex-direction: column;
   }
   .modal-greet-photo-wrap {
-    width: 100%;
+    width: min(72%, 220px);
     min-width: 0;
+    margin: 0 auto;
+  }
+  .modal-greet-text {
+    width: 100%;
   }
 }
 
@@ -747,14 +721,12 @@ body::before {
 
   .music-bar span { display: none; }      /* icon only on very small screens */
 
-  /* Director image shorter */
-  .mgr-grid > .mgr-card:first-child .mgr-poster-wrap,
-  .mgr-grid > .mgr-card:first-child .mgr-poster-img,
-  .mgr-grid > .mgr-card:first-child .mgr-avatar-fallback { height: 220px; }
-  .mgr-detail-name { font-size: 1.25rem; }
-  .mgr-grid > .mgr-card:first-child .mgr-detail { padding: .9rem; gap: .5rem; }
-
   /* Deputy cards */
+  .mgr-grid > .mgr-card:first-child { grid-column: 1 / -1; }
+  .mgr-grid > .mgr-card:first-child .mgr-poster-wrap {
+    height: auto;
+    aspect-ratio: 1567 / 1045;
+  }
   .mgr-grid > .mgr-card:not(:first-child) { grid-column: 1 / -1; }
   .mgr-grid > .mgr-card:not(:first-child) .mgr-poster-wrap {
     height: auto;
@@ -768,6 +740,14 @@ body::before {
   .blessing-btn  { font-size: 11px; padding: .55rem .55rem; }
   .from-input    { font-size: 12px; }
   .btn { font-size: 12.5px; padding: .72rem; }
+
+  .modal-greet-photo-wrap {
+    width: min(76%, 185px);
+  }
+  .modal-greet-message {
+    font-size: .92rem;
+    line-height: 1.38;
+  }
 
   /* Preview */
   .preview-to   { font-size: 11.5px; }

@@ -124,7 +124,7 @@ document.querySelector('#app').innerHTML = `
 
         <!-- แถวที่ 4: กรอกชื่อผู้ส่ง / หน่วยงาน -->
         <div class="section-label" style="margin-top:.9rem">② ชื่อผู้ส่ง / หน่วยงาน (ไม่บังคับ)</div>
-        <input class="from-input" id="fromInput" type="text" placeholder="เช่น กองส่งเสริมการมีส่วนร่วมของประชาชน" />
+        <input class="from-input" id="fromInput" type="text" placeholder="เช่น นายสงกรานต์ สังกัด สำนักงานเลขานุการกรม" />
 
         <div class="btn-row" id="mainBtns" style="margin-top:1.2rem">
           <button class="btn btn-download" id="btnSave">⬇ บันทึกการ์ด</button>
