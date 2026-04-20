@@ -3,6 +3,12 @@ import html2canvas from 'html2canvas'
 import { MANAGERS, BLESSINGS } from './data.js'
 import { buildGreetingCard } from './cardRenderer.js'
 
+// ── Feature config ───────────────────────────────────────────
+const CONFIG = {
+  ENABLE_SAVE_BUTTON: false,   // false = ซ่อนปุ่ม "บันทึกการ์ด" และ "บันทึกการ์ด PNG"
+  ENABLE_MUSIC: false,          // false = ซ่อน music bar และไม่เล่นเพลงอัตโนมัติ
+}
+
 const state = {
   selectedMgr: null,  // Single manager selection
   selectedBlessing: null,  // Single blessing selection
@@ -225,18 +231,26 @@ function stopMusic () {
   musicLabel.textContent = '🎶 เพลงสงกรานต์ — คลิกเพื่อเล่น'
 }
 
-// Always reset music to stopped state on reload/new page show.
-window.addEventListener('load', startMusic)
-window.addEventListener('pageshow', startMusic)
-window.addEventListener('pagehide', stopMusic)
-window.addEventListener('beforeunload', stopMusic)
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) stopMusic()
-})
+// Apply music config
+if (!CONFIG.ENABLE_MUSIC) {
+  const musicBar = document.querySelector('.music-bar')
+  if (musicBar) musicBar.style.display = 'none'
+  const bgMusic = document.getElementById('bgMusic')
+  if (bgMusic) bgMusic.style.display = 'none'
+} else {
+  // Always reset music to stopped state on reload/new page show.
+  window.addEventListener('load', startMusic)
+  window.addEventListener('pageshow', startMusic)
+  window.addEventListener('pagehide', stopMusic)
+  window.addEventListener('beforeunload', stopMusic)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopMusic()
+  })
 
-btnMusic.addEventListener('click', () => {
-  musicPlaying ? stopMusic() : startMusic()
-})
+  btnMusic.addEventListener('click', () => {
+    musicPlaying ? stopMusic() : startMusic()
+  })
+}
 
 // ── manager selection ────────────────────────────────────────
 document.getElementById('mgrGrid').addEventListener('click', e => {
@@ -285,6 +299,13 @@ document.getElementById('blessingGrid').addEventListener('click', e => {
   hidePreview()
 })
 
+// Apply save button config
+if (!CONFIG.ENABLE_SAVE_BUTTON) {
+  const btnSaveEl = document.getElementById('btnSave')
+  if (btnSaveEl) btnSaveEl.style.display = 'none'
+  const btnDownloadEl = document.getElementById('btnDownloadFromModal')
+  if (btnDownloadEl) btnDownloadEl.style.display = 'none'
+}
 document.getElementById('btnSave').addEventListener('click', showCardModal)
 document.getElementById('btnCloseModal').addEventListener('click', closeCardModal)
 document.getElementById('btnDownloadFromModal').addEventListener('click', downloadCard)
