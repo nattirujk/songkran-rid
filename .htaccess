@@ -1,20 +1,23 @@
-# Block direct web access to this directory and any database files.
-<IfModule mod_authz_core.c>
-	Require all denied
-</IfModule>
-
-<IfModule !mod_authz_core.c>
-	Order Deny,Allow
-	Deny from all
-</IfModule>
-
+# Deny direct access to database files from web requests.
 <FilesMatch "\.(db|sqlite|sqlite3)$">
 	<IfModule mod_authz_core.c>
 		Require all denied
 	</IfModule>
 
 	<IfModule !mod_authz_core.c>
-		Order Deny,Allow
+		Order Allow,Deny
 		Deny from all
 	</IfModule>
 </FilesMatch>
+
+# Defense in depth: block direct access to DB files inside /storage.
+<IfModule mod_alias.c>
+	RedirectMatch 403 (?i)^/storage/songkran_signatures\.db$
+	RedirectMatch 403 (?i)^/storage/.*\.(db|sqlite|sqlite3)$
+</IfModule>
+
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteRule ^storage/songkran_signatures\.db$ - [F,L,NC]
+	RewriteRule ^storage/.*\.(db|sqlite|sqlite3)$ - [F,L,NC]
+</IfModule>
