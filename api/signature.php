@@ -30,7 +30,7 @@ if (!is_array($input)) {
 
 $senderNameOrOrg = trim((string)($input['sender_name_or_org'] ?? ''));
 $executiveName = normalize_name((string)($input['executive_name'] ?? ''));
-$blessingText = trim((string)($input['blessing_text'] ?? ''));
+$blessingText = normalize_name((string)($input['blessing_text'] ?? ''));
 
 if ($executiveName === '') {
     http_response_code(422);
@@ -79,7 +79,8 @@ if (!in_array($executiveName, $allowedNormalized, true)) {
     exit;
 }
 
-if (!in_array($blessingText, $config['blessing_texts'], true)) {
+$allowedBlessingsNormalized = array_map('normalize_name', $config['blessing_texts']);
+if (!in_array($blessingText, $allowedBlessingsNormalized, true)) {
     http_response_code(422);
     echo json_encode([
         'ok' => false,
